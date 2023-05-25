@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<p>Данная карточка создается/обновляется для вида / подвида услуг:
+                                                                  {{name}}
+                                                                  {{object.med_service.name}}
+                                                                  {{object.sub_med_service.name}}
+</p>
+
+<form method="POST">
+    {% csrf_token %}
+    {{form.as_p}}
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>
+
+{% endblock %}

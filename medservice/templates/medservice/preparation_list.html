@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<ul class="list-group">
+
+  {% for item in object_list %}
+  <li class="list-group-item list-group-item-action">
+
+    <b>{{item.name}}</b>
+  <span>
+    <a class="btn btn-warning" href="{{item.get_absolute_url}}update/">Обновить</a>
+  </span>
+  <span>
+    <a class="btn btn-danger" href="{{item.get_absolute_url}}delete/">Удалить</a>
+  </span>
+    <p>{{item.description}}</p>
+  </li>
+  {% endfor %}
+</ul>
+
+<a class="btn btn-primary" href="{% url 'create-Preparation' %}">Создать специальную подготовку</a>
+
+{% endblock %}

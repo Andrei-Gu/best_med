@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<ul class="list-group">
+    Вы действительно хотите удалить карточку вида / подвида услуг:
+                                                                  {{object.med_service.name}}
+                                                                  {{object.sub_med_service.name}} ?
+    <form method="POST">
+        {% csrf_token %}
+        <button class="btn btn-danger">Да</button>
+    </form>
+</ul>
+{% endblock %}

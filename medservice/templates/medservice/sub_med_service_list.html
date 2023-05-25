@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<ul class="list-group">
+
+  {% for item in object_list %}
+  <li class="list-group-item">
+    <a href="{{item.get_absolute_url}}">{{item.name}}</a>
+    <span>
+    <a class="btn btn-warning" href="{{item.get_absolute_url}}update/">Обновить</a>
+    </span>
+    <span>
+    <a class="btn btn-danger" href="{{item.get_absolute_url}}delete/">Удалить</a>
+    </span>
+    {% if item.id not in sub_med_service_cards %}
+      <span>
+        <a class="btn btn-info" href="{{item.get_absolute_url}}card/create/">
+        Карточка с описанием еще не создана. Создать карточку
+        </a>
+      </span>
+    {% endif %}
+  </li>
+
+  {% endfor %}
+</ul>
+
+<a class="btn btn-primary" href="{% url 'create-SubMedService' %}">Создать подвид услуги</a>
+
+{% endblock %}

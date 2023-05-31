@@ -2,11 +2,9 @@
 
 
 {% block content %}
-<ul class="list-group">
-    Вы действительно хотите удалить "{{object.name}}"?
+  Вы действительно хотите удалить "{{object.name}}{{object.full_name}}"?
     <form method="POST">
         {% csrf_token %}
         <button class="btn btn-danger">Да</button>
     </form>
-</ul>
 {% endblock %}

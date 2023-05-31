@@ -7,5 +7,6 @@
 {% for category in all_med_service_categories %}
   <a class="btn btn-primary" href="{{category.get_short_name_url}}">{{category.name}}</a>
 {% endfor %}
+  <a class="btn btn-primary" href="{% url 'MedSpecialty' %}">Медицинские направления</a>
 
 {% endblock %}

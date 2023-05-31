@@ -2,31 +2,36 @@
 
 
 {% block content %}
-<a class="btn btn-primary" href="/service/">Вернуться к списку категорий услуг</a>
+<a class="btn btn-info" href="/service/">Вернуться к списку категорий услуг</a>
 
-<ul class="list-group">
+<ul class="list-group list-group-flush">
 
   {% for item in object_list %}
-  <li class="list-group-item">
+  <li class="list-group-item list-group-item-action">
     <a href="{{item.get_short_name_url}}">{{item.name}}</a>
-    <span>
-    <a class="btn btn-warning" href="{{item.get_absolute_url}}update/">Обновить</a>
-    </span>
-    <span>
-    <a class="btn btn-danger" href="{{item.get_absolute_url}}delete/">Удалить</a>
-    </span>
-    {% if item.id not in med_service_cards %}
+
+    {% if user.is_staff %}
       <span>
-        <a class="btn btn-info" href="{{item.get_absolute_url}}card/create/">
-        Карточка с описанием еще не создана. Создать карточку
-        </a>
+      <a class="btn btn-warning" href="{{item.get_absolute_url}}update/">Обновить</a>
       </span>
+      <span>
+      <a class="btn btn-danger" href="{{item.get_absolute_url}}delete/">Удалить</a>
+      </span>
+      {% if item.id not in med_service_cards %}
+        <span>
+          <a class="btn btn-info" href="{{item.get_absolute_url}}card/create/">
+          Карточка с описанием еще не создана. Создать карточку
+          </a>
+        </span>
+      {% endif %}
     {% endif %}
   </li>
 
   {% endfor %}
 </ul>
 
-<a class="btn btn-primary" href="{% url 'create-MedService' %}">Создать вид услуги</a>
+{% if user.is_staff %}
+  <a class="btn btn-primary" href="{% url 'create-MedService' %}">Создать вид услуги</a>
+{% endif %}
 
 {% endblock %}

@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .models import *
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .forms import *
+from django.contrib.auth.mixins import PermissionRequiredMixin, UserPassesTestMixin
 
 
 def index_view(request):
@@ -27,24 +28,30 @@ class MedServiceCategoryListView(ListView):
     template_name = 'medservice/med_service_category_list.html'
 
 
-class MedServiceCategoryCreateView(CreateView):
+class MedServiceCategoryCreateView(PermissionRequiredMixin, CreateView):
     model = MedServiceCategory
     template_name = 'medservice/med_service_category_form.html'
     form_class = MedServiceCategoryForm
     success_url = '/service/'
+    permission_required = 'medservice.add_medservicecategory'
 
 
-class MedServiceCategoryUpdateView(UpdateView):
+class MedServiceCategoryUpdateView(PermissionRequiredMixin, UpdateView):
     model = MedServiceCategory
     template_name = 'medservice/med_service_category_form.html'
     form_class = MedServiceCategoryForm
     success_url = '/service/'
+    permission_required = 'medservice.change_medservicecategory'
 
 
-class MedServiceCategoryDeleteView(DeleteView):
+class MedServiceCategoryDeleteView(UserPassesTestMixin, DeleteView):
     model = MedServiceCategory
     template_name = 'medservice/confirm_deletion.html'
     success_url = '/service/'
+
+
+    def test_func(self):
+        return self.request.user.is_superuser
 
 
 # Ниже идут вью для выполнения CRUD-действий в отношении видов услуг
@@ -84,27 +91,47 @@ class MedServiceDetailView(DetailView):
         preparations = Preparation.objects.filter(card__id=card.id)
         context['card'] = card
         context['preparations'] = preparations
+
+        # понимаю, что это совсем костыль, но уже нет времени сделать красиво - буду благодарен за подсказку :)
+        # идея в том, чтобы при выборе видов услуг "Приём врача в отделении клиники", "Выезд врача на дом"
+        # и "Приём врача по видеосвязи" отображались только доступные для них медицинские направления
+        if self.object.short_name == 'indoor':
+            med_specialties = MedSpecialty.objects.filter(is_available_indoor=True).order_by('name')
+            context['med_specialties'] = med_specialties
+        elif self.object.short_name == 'home_visit':
+            med_specialties = MedSpecialty.objects.filter(is_available_home_visit=True).order_by('name')
+            context['med_specialties'] = med_specialties
+        elif self.object.short_name == 'video':
+            med_specialties = MedSpecialty.objects.filter(is_available_video=True).order_by('name')
+            context['med_specialties'] = med_specialties
+
         return context
 
 
-class MedServiceCreateView(CreateView):
+class MedServiceCreateView(PermissionRequiredMixin, CreateView):
     model = MedService
     template_name = 'medservice/med_service_form.html'
     form_class = MedServiceForm
     success_url = '/success/'
+    permission_required = 'medservice.add_medservice'
 
 
-class MedServiceUpdateView(UpdateView):
+class MedServiceUpdateView(PermissionRequiredMixin, UpdateView):
     model = MedService
     template_name = 'medservice/med_service_form.html'
     form_class = MedServiceForm
     success_url = '/success/'
+    permission_required = 'medservice.change_medservice'
 
 
-class MedServiceDeleteView(DeleteView):
+class MedServiceDeleteView(UserPassesTestMixin, DeleteView):
     model = MedService
     template_name = 'medservice/confirm_deletion.html'
     success_url = '/success/'
+
+
+    def test_func(self):
+        return self.request.user.is_superuser
 
 
 # Ниже идут вью для выполнения CRUD-действий в отношении подвидов услуг
@@ -147,58 +174,72 @@ class SubMedServiceDetailView(DetailView):
         return context
 
 
-class SubMedServiceCreateView(CreateView):
+class SubMedServiceCreateView(PermissionRequiredMixin, CreateView):
     model = SubMedService
     template_name = 'medservice/sub_med_service_form.html'
     form_class = SubMedServiceForm
     success_url = '/success/'
+    permission_required = 'medservice.add_submedservice'
 
 
-class SubMedServiceUpdateView(UpdateView):
+class SubMedServiceUpdateView(PermissionRequiredMixin, UpdateView):
     model = SubMedService
     template_name = 'medservice/sub_med_service_form.html'
     form_class = SubMedServiceForm
     success_url = '/success/'
+    permission_required = 'medservice.change_submedservice'
 
 
-class SubMedServiceDeleteView(DeleteView):
+class SubMedServiceDeleteView(UserPassesTestMixin, DeleteView):
     model = SubMedService
     template_name = 'medservice/confirm_deletion.html'
     success_url = '/success/'
+
+
+    def test_func(self):
+        return self.request.user.is_superuser
 
 
 # Ниже идут вью для выполнения CRUD-действий в отношении специальной подготовки
-class PreparationListView(ListView):
+class PreparationListView(PermissionRequiredMixin, ListView):
     model = Preparation
     template_name = 'medservice/preparation_list.html'
+    permission_required = 'medservice.view_preparation'
 
 
-class PreparationCreateView(CreateView):
+class PreparationCreateView(PermissionRequiredMixin, CreateView):
     model = Preparation
     template_name = 'medservice/preparation_form.html'
     form_class = PreparationForm
     success_url = '/preparation/'
+    permission_required = 'medservice.add_preparation'
 
 
-class PreparationUpdateView(UpdateView):
+class PreparationUpdateView(PermissionRequiredMixin, UpdateView):
     model = Preparation
     template_name = 'medservice/preparation_form.html'
     form_class = PreparationForm
     success_url = '/preparation/'
+    permission_required = 'medservice.change_preparation'
 
 
-class PreparationDeleteView(DeleteView):
+class PreparationDeleteView(UserPassesTestMixin, DeleteView):
     model = Preparation
     template_name = 'medservice/confirm_deletion.html'
     success_url = '/preparation/'
 
 
+    def test_func(self):
+        return self.request.user.is_superuser
+
+
 # Ниже идут вью для выполнения CRUD-действий в отношении карточек видов услуг
-class MedServiceCardCreateView(CreateView):
+class MedServiceCardCreateView(PermissionRequiredMixin, CreateView):
     model = MedServiceCard
     template_name = 'medservice/card_form.html'
     form_class = MedServiceCardForm
     success_url = '/success/'
+    permission_required = 'medservice.add_medservicecard'
 
     def form_valid(self, form):
         med_service_card = form.save(commit=False)
@@ -218,18 +259,19 @@ class MedServiceCardCreateView(CreateView):
         return context
 
 
-class MedServiceCardUpdateView(UpdateView):
+class MedServiceCardUpdateView(PermissionRequiredMixin, UpdateView):
     model = MedServiceCard
     template_name = 'medservice/card_form.html'
     form_class = MedServiceCardForm
     success_url = '/success/'
+    permission_required = 'medservice.change_medservicecard'
 
     def get_object(self, **kwargs):
         med_service_id = self.kwargs['pk']
         return MedServiceCard.objects.get(med_service=med_service_id)
 
 
-class MedServiceCardDeleteView(DeleteView):
+class MedServiceCardDeleteView(UserPassesTestMixin, DeleteView):
     model = MedServiceCard
     template_name = 'medservice/card_confirm_deletion.html'
     success_url = '/success/'
@@ -239,12 +281,17 @@ class MedServiceCardDeleteView(DeleteView):
         return MedServiceCard.objects.get(med_service=med_service_id)
 
 
+    def test_func(self):
+        return self.request.user.is_superuser
+
+
 # Ниже идут вью для выполнения CRUD-действий в отношении карточек подвидов услуг
-class SubMedServiceCardCreateView(CreateView):
+class SubMedServiceCardCreateView(PermissionRequiredMixin, CreateView):
     model = SubMedServiceCard
     template_name = 'medservice/card_form.html'
     form_class = SubMedServiceCardForm
     success_url = '/success/'
+    permission_required = 'medservice.add_submedservicecard'
 
     def form_valid(self, form):
         sub_med_service_card = form.save(commit=False)
@@ -264,18 +311,19 @@ class SubMedServiceCardCreateView(CreateView):
         return context
 
 
-class SubMedServiceCardUpdateView(UpdateView):
+class SubMedServiceCardUpdateView(PermissionRequiredMixin, UpdateView):
     model = SubMedServiceCard
     template_name = 'medservice/card_form.html'
     form_class = SubMedServiceCardForm
     success_url = '/success/'
+    permission_required = 'medservice.change_submedservicecard'
 
     def get_object(self, **kwargs):
         sub_med_service_id = self.kwargs['pk']
         return SubMedServiceCard.objects.get(sub_med_service=sub_med_service_id)
 
 
-class SubMedServiceCardDeleteView(DeleteView):
+class SubMedServiceCardDeleteView(UserPassesTestMixin, DeleteView):
     model = SubMedServiceCard
     template_name = 'medservice/card_confirm_deletion.html'
     success_url = '/success/'
@@ -283,3 +331,96 @@ class SubMedServiceCardDeleteView(DeleteView):
     def get_object(self, **kwargs):
         sub_med_service_id = self.kwargs['pk']
         return SubMedServiceCard.objects.get(sub_med_service=sub_med_service_id)
+
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+
+# Ниже идут вью для выполнения CRUD-действий в отношении мединских специальностей (медицинских направлений)
+class MedSpecialtyListView(ListView):
+    model = MedSpecialty
+    template_name = 'medservice/med_specialty_list.html'
+
+
+class MedSpecialtyDetailView(DetailView):
+    model = MedSpecialty
+    template_name = 'medservice/med_specialty_detail_view.html'
+
+
+    def get_object(self, **kwargs):
+        med_specialty_short_name = self.kwargs['short_name']
+        return MedSpecialty.objects.get(short_name=med_specialty_short_name)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        med_specialty_short_name = self.kwargs['short_name']
+        doctors = Doctor.objects.filter(med_specialty__short_name=med_specialty_short_name, is_active=True).order_by('full_name')
+        context['doctors'] = doctors
+        return context
+
+
+class MedSpecialtyCreateView(PermissionRequiredMixin, CreateView):
+    model = MedSpecialty
+    template_name = 'medservice/med_specialty_form.html'
+    form_class = MedSpecialtyForm
+    success_url = '/med-specialty/'
+    permission_required = 'medservice.add_medspecialty'
+
+
+class MedSpecialtyUpdateView(PermissionRequiredMixin, UpdateView):
+    model = MedSpecialty
+    template_name = 'medservice/med_specialty_form.html'
+    form_class = MedSpecialtyForm
+    success_url = '/med-specialty/'
+    permission_required = 'medservice.change_medspecialty'
+
+
+class MedSpecialtyDeleteView(UserPassesTestMixin, DeleteView):
+    model = MedSpecialty
+    template_name = 'medservice/confirm_deletion.html'
+    success_url = '/med-specialty/'
+
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+
+# Ниже идут вью для выполнения CRUD-действий в отношении врачей / докторов
+class DoctorListView(PermissionRequiredMixin, ListView):
+    model = Doctor
+    template_name = 'medservice/doctor_list.html'
+    permission_required = 'medservice.view_doctor'
+
+
+    def get_queryset(self):
+        return Doctor.objects.all().order_by('full_name')
+
+
+class DoctorDetailView(DetailView):
+    model = Doctor
+    template_name = 'medservice/doctor_detail_view.html'
+
+
+class DoctorCreateView(PermissionRequiredMixin, CreateView):
+    model = Doctor
+    template_name = 'medservice/doctor_form.html'
+    form_class = DoctorForm
+    success_url = '/doctor/'
+    permission_required = 'medservice.add_doctor'
+
+
+class DoctorUpdateView(PermissionRequiredMixin, UpdateView):
+    model = Doctor
+    template_name = 'medservice/doctor_form.html'
+    form_class = DoctorForm
+    success_url = '/doctor/'
+    permission_required = 'medservice.change_doctor'
+
+
+class DoctorDeleteView(UserPassesTestMixin, DeleteView):
+    model = Doctor
+    template_name = 'medservice/confirm_deletion.html'
+    success_url = '/doctor/'
+
+    def test_func(self):
+        return self.request.user.is_superuser

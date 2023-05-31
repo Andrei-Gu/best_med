@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{object.full_name}}</h1>
+
+<ul class="list-group list-group-flush">
+    <li class="list-group-item">Образование и ученая степень: {{object.education_and_degree}}</li>
+    <li class="list-group-item">Дата начала врачебной практики: {{object.date_med_practice_started}}</li>
+</ul>
+
+{% if user.is_staff %}
+  <a class="btn btn-warning" href="{{object.get_absolute_url}}update/">Обновить</a>
+
+  <a class="btn btn-danger" href="{{object.get_absolute_url}}delete/">Удалить</a>
+{% endif %}
+
+{% endblock %}

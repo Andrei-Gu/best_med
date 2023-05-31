@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{object.name}}</h1>
+<p>{{object.description}}</p>
+<p>Менеджер клиники сообщит Вам стоимость приёма у конкретного врача</p>
+
+
+<ul class="list-group list-group-flush">
+    <li class="list-group-item">
+        {% if not doctors %}
+          В настоящий момент нет врачей, видущих прием по данному направлению
+        {% else %}
+          Приём ведут следующие врачи:
+          {% for doctor in doctors %}
+            <p><a href="{{doctor.get_absolute_url}}">{{doctor.full_name}}</a></p>
+          {% endfor %}
+        {% endif %}
+    </li>
+</ul>
+
+{% endblock %}

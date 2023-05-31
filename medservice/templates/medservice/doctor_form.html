@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<p>Обратите внимание, что дата начал врачебной практики должна быть указана в формате ДД.ММ.ГГГГ или ГГГГ-ММ-ДД</p>
+
+<form method="POST">
+    {% csrf_token %}
+    {{form.as_p}}
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>
+
+{% endblock %}

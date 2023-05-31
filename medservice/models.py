@@ -60,7 +60,7 @@ class SubMedService(models.Model):
 
 # Необходимость специальной подготовки: специальная подготовка не требуется, натощак и т.д.
 class Preparation(models.Model):
-    name = models.TextField(max_length=40)
+    name = models.TextField(unique=True, max_length=40)
     description = models.TextField(max_length=2000)
 
 
@@ -89,3 +89,41 @@ class MedServiceCard(Card):
 # Карточка с описанием конкретного подвида услуги
 class SubMedServiceCard(Card):
     sub_med_service = models.OneToOneField(SubMedService, on_delete=models.CASCADE)
+
+
+# Мединская специальность (медицинское направление)
+class MedSpecialty(models.Model):
+    name = models.TextField(unique=True, max_length=40)
+    short_name = models.CharField(unique=True, max_length=10)
+    description = models.TextField(max_length=2000)
+    is_available_indoor = models.BooleanField(default=True)
+    is_available_home_visit = models.BooleanField(default=False)
+    is_available_video = models.BooleanField(default=True)
+
+
+    def __str__(self):
+        return self.name
+
+
+    def get_short_name_url(self):
+        return "/med-specialty/%s/" % self.short_name
+
+
+    def get_absolute_url(self):
+        return "/med-specialty/%i/" % self.id
+
+
+# Врачи / доктора
+class Doctor(models.Model):
+    full_name = models.TextField(max_length=50) # могут быть тёзки, поэтому нет требования к уникальности
+    education_and_degree = models.TextField(max_length=2000)
+    date_med_practice_started = models.DateField()
+    med_specialty = models.ManyToManyField(MedSpecialty)
+    is_active = models.BooleanField(default=True)
+
+
+    def __str__(self):
+        return self.full_name
+
+    def get_absolute_url(self):
+        return "/doctor/%i/" % self.id

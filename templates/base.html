@@ -34,6 +34,14 @@
         </li>
         {% endfor %}
 
+        <li class="nav-item">
+          <a class="nav-link active" href="{% url 'MedSpecialty' %}">Медицинские направления</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="/contacts/">Адреса и контакты</a>
+        </li>
+
+        {% if user.is_staff %}
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle active" href="/create/" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Создание элементов
@@ -43,14 +51,33 @@
             <li><a class="dropdown-item" href="{% url 'create-MedService' %}">Вид услуг</a></li>
             <li><a class="dropdown-item" href="{% url 'create-SubMedService' %}">Подвид услуг</a></li>
             <li><a class="dropdown-item" href="{% url 'create-Preparation' %}">Специальная подготовка</a></li>
+            <li><a class="dropdown-item" href="{% url 'create-MedSpecialty' %}">Медицинская специальность / направление</a></li>
+            <li><a class="dropdown-item" href="{% url 'create-Doctor' %}">Врач</a></li>
           </ul>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" href="/preparation/">Специальная подготовка</a>
+          <a class="nav-link active" href="{% url 'Preparation' %}">Специальная подготовка</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" href="/contacts/">Адреса и контакты</a>
+          <a class="nav-link active" href="{% url 'Doctor' %}">Врачи</a>
         </li>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link active" href="{% url 'UserLogout' %}">Выход</a>
+          </li>
+          <span>
+            <a class="btn btn-info">Пользователь {{user.username}}</a>
+          </span>
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link active" href="{% url 'UserRegistration' %}">Регистрация</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="{% url 'UserLogin' %}">Войти</a>
+          </li>
+        {% endif %}
       </ul>
     </div>
   </div>
